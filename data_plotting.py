@@ -37,6 +37,153 @@ def save_map(fig, filename: str):
 states_geo = gpd.read_file("boundaries/tl_2024_us_state.zip")
 counties_geo = gpd.read_file("boundaries/tl_2024_us_county.zip")
 
+def graph_county_death_per_100_map():
+    counties = []
+    state_fips = []
+    values = []
+
+    for item in data:
+        state = states_geo[
+            states_geo["NAME"] == item["name"]
+        ]
+
+        if state.empty:
+            continue
+
+        fips = state.iloc[0]["STATEFP"]
+
+        for county in item["counties"]:
+
+            counties.append(clean_county_name(county["name"]))
+            state_fips.append(fips)
+            values.append(county["death_per_100"])
+
+    df = pd.DataFrame({
+        "county": counties,
+        "value": values
+    })
+
+    df["county"] = df["county"].apply(clean_county_name)
+
+    counties_geo["county"] = counties_geo["NAME"].apply(clean_county_name)
+
+    merged = counties_geo.merge(
+        df,
+        on="county",
+        how="left"
+    )
+
+    merged = merged[
+        ~merged["STATEFP"].isin([
+            "02", "15", "60", "66", "69", "72", "78"
+        ])
+    ]
+
+    fig, ax = plt.subplots(figsize=(15, 10))
+
+    merged.plot(
+        column="value",
+        cmap="viridis",
+        legend=True,
+        edgecolor="black",
+        linewidth=0.5,
+        missing_kwds={
+            "color": "lightgrey",
+            "label": "No data"
+        },
+        ax=ax,
+        norm=LogNorm(
+            vmin=1,
+            vmax=merged["value"].max()
+        ),
+    )
+
+    cbar = ax.get_figure().axes[-1]
+
+    cbar.yaxis.set_major_formatter(ScalarFormatter())
+    cbar.yaxis.set_major_locator(LogLocator(base=10))
+    cbar.ticklabel_format(axis="y", style="plain")
+
+    ax.set_xlim(-125, -66)
+    ax.set_ylim(24, 50)
+
+    ax.set_title("Deaths by County per 100k")
+    ax.axis("off")
+
+    plt.tight_layout()
+    plt.savefig(
+        "export/overall_county_deaths_per_100_map.png",
+        dpi=1200,
+        bbox_inches="tight"
+    )
+
+    plt.close()
+
+def graph_state_death_per_100_map():
+    states = []
+    values = []
+    for item in data:
+        states.append(item["name"])
+        values.append(item["death_per_100"])
+
+    df = pd.DataFrame({
+        "state": states,
+        "value": values
+    })
+
+    merged = states_geo.merge(
+        df,
+        left_on="NAME",
+        right_on="state",
+        how="left"
+    )
+
+    merged = merged[
+        ~merged["STUSPS"].isin([
+            "AK", "HI", "PR", "AS", "GU", "MP", "VI"
+        ])
+    ]
+
+    fig, ax = plt.subplots(figsize=(15, 10))
+
+    merged.plot(
+        column="value",
+        cmap="viridis",
+        legend=True,
+        edgecolor="black",
+        linewidth=0.5,
+        missing_kwds={
+            "color": "lightgrey",
+            "label": "No data"
+        },
+        ax=ax,
+        norm=LogNorm(
+            vmin=1,
+            vmax=merged["value"].max()
+        ),
+    )
+
+    cbar = ax.get_figure().axes[-1]
+
+    cbar.yaxis.set_major_formatter(ScalarFormatter())
+    cbar.yaxis.set_major_locator(LogLocator(base=10))
+    cbar.ticklabel_format(axis="y", style="plain")
+
+    ax.set_xlim(-125, -66)
+    ax.set_ylim(24, 50)
+
+    ax.set_title("Deaths by State per 100k")
+    ax.axis("off")
+
+    plt.tight_layout()
+    plt.savefig(
+        "export/overall_state_deaths_per_100_map.png",
+        dpi=1200,
+        bbox_inches="tight"
+    )
+
+    plt.close()
+
 def graph_state_death_map():
     states = []
     values = []
@@ -402,18 +549,43 @@ def graph_deaths_by_state_per_100():
 
     plt.close()
 
-
-graph_deaths_by_state()
-graph_state_death_map()
-graph_county_death_map()
-
-total = 0
+total = 6
 for state in data:
     total += 1
     for county in state["counties"]:
         total += 1
 
 cur = 0
+
+graph_deaths_by_state()
+cur += 1
+progress_bar(cur, total)
+
+
+graph_deaths_by_state_per_100()
+cur += 1
+progress_bar(cur, total)
+
+
+graph_state_death_map()
+cur += 1
+progress_bar(cur, total)
+
+
+graph_county_death_map()
+cur += 1
+progress_bar(cur, total)
+
+
+graph_state_death_per_100_map()
+cur += 1
+progress_bar(cur, total)
+
+
+graph_county_death_per_100_map()
+cur += 1
+progress_bar(cur, total)
+
 
 for state in data:
     for county in state["counties"]:
