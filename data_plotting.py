@@ -14,7 +14,7 @@ BOUNDARY_FOLDER = "boundaries"
 with open("data.json", "r") as file:
     data = json.load(file)
 
-def progress_bar(iteration, total, prefix='', suffix='', length=60, fill='█'):
+def progress_bar(iteration, total, prefix='', suffix='', length=90, fill='█'):
     percent = ("{0:.1f}").format(100 * (iteration / float(total)))
     filled_length = int(length * iteration // total)
     bar = fill * filled_length + '-' * (length - filled_length)
@@ -25,7 +25,6 @@ def clean_county_name(name: str):
     name = re.sub(r",\s*[A-Z]{2}$", "", name.strip())
     name = re.sub(r"\s+(County|Parish|Borough|Census Area)$", "", name, flags=re.IGNORECASE)
     return name.strip().casefold()
-
 
 def save_map(fig, filename: str):
     path = os.path.join("export", filename)
@@ -185,6 +184,47 @@ def graph_county_death_map():
 
     plt.close()
 
+def graph_death_by_county_per_100(state_name: str):
+
+    state = None
+
+    for s in data:
+        if s["name"] == state_name:
+            state = s
+
+    if state == None:
+        return
+    
+
+    deaths = []
+
+    counties = []
+
+    for c in state["counties"]:
+        deaths.append(c["death_per_100"])
+        counties.append(c["name"])
+
+    plt.figure(figsize=(10, 16))
+
+    plt.barh(counties, deaths)
+    plt.gca().invert_yaxis()
+
+    plt.title(f"Deaths by County - {state_name}")
+    plt.ylabel("County")
+    plt.xlabel("Deaths per 100k")
+
+    plt.tight_layout()
+
+    os.makedirs(f"export/{state_name}", exist_ok=True)
+
+    plt.savefig(
+        f"export/{state_name}/deaths_by_county_per_100k.png",
+        dpi=1200,
+        bbox_inches="tight"
+    )
+
+    plt.close()
+
 def graph_death_by_county(state_name: str):
 
     state = None
@@ -219,7 +259,7 @@ def graph_death_by_county(state_name: str):
     os.makedirs(f"export/{state_name}", exist_ok=True)
 
     plt.savefig(
-        f"export/{state_name}_deaths_by_county.png",
+        f"export/{state_name}/deaths_by_county.png",
         dpi=1200,
         bbox_inches="tight"
     )
@@ -335,6 +375,38 @@ def graph_deaths_by_state():
 
     plt.close()
 
+def graph_deaths_by_state_per_100():
+
+    names = []
+    deaths = []
+
+    for item in data:
+        names.append(item["name"])
+        deaths.append(item["death_per_100"])
+
+    plt.figure(figsize=(10, 16))
+
+    plt.barh(names, deaths)
+    plt.gca().invert_yaxis()
+
+    plt.title("Deaths by State")
+    plt.ylabel("State")
+    plt.xlabel("Death per 100k")
+
+    plt.tight_layout()
+    plt.savefig(
+        "export/overall_deaths_per_100.png",
+        dpi=1200,
+        bbox_inches="tight"
+    )
+
+    plt.close()
+
+
+graph_deaths_by_state()
+graph_state_death_map()
+graph_county_death_map()
+
 total = 0
 for state in data:
     total += 1
@@ -350,9 +422,6 @@ for state in data:
         cur += 1
         progress_bar(cur, total)
     graph_death_by_county(state["name"])
+    graph_death_by_county_per_100(state["name"])
     cur += 1
     progress_bar(cur, total)
-
-graph_deaths_by_state()
-graph_state_death_map()
-graph_county_death_map()

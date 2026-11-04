@@ -60,7 +60,8 @@ class DataConverter:
                     deaths=deaths,
                     population=item["Population"],
                     overall_deaths=item["Deaths"],
-                    metro_size=filtered_result_1.iloc[0]["2023 Urbanization"]
+                    metro_size=filtered_result_1.iloc[0]["2023 Urbanization"],
+                    death_per_100=(deaths/item["Population"])*100000
                 )
             )
 
@@ -100,7 +101,8 @@ class DataConverter:
                         overall_deaths=deaths, 
                         crude_rate=crude_rate, 
                         crude_rate_low=crude_rate_low, 
-                        crude_rate_high=crude_rate_high
+                        crude_rate_high=crude_rate_high,
+                        death_per_100=(deaths/population)*100000
                     )
                 )
 
