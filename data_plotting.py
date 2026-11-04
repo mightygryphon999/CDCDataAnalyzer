@@ -1,13 +1,13 @@
+import json
 import os
 import re
-import json
 import sys
-from matplotlib.colors import LogNorm
-from matplotlib.ticker import ScalarFormatter, LogLocator
 
-import pandas as pd
 import geopandas as gpd
 import matplotlib.pyplot as plt
+import pandas as pd
+from matplotlib.colors import LogNorm
+from matplotlib.ticker import LogLocator, ScalarFormatter
 
 BOUNDARY_FOLDER = "boundaries"
 
@@ -15,7 +15,7 @@ with open("data.json", "r") as file:
     data = json.load(file)
 
 def progress_bar(iteration, total, prefix='', suffix='', length=90, fill='█'):
-    percent = ("{0:.1f}").format(100 * (iteration / float(total)))
+    percent = (f"{100 * (iteration / float(total)):.1f}")
     filled_length = int(length * iteration // total)
     bar = fill * filled_length + '-' * (length - filled_length)
     sys.stdout.write(f'\r{prefix} |{bar}| {percent}% {suffix}')
@@ -79,7 +79,7 @@ def graph_county_death_per_100_map():
         ])
     ]
 
-    fig, ax = plt.subplots(figsize=(15, 10))
+    _fig, ax = plt.subplots(figsize=(15, 10))
 
     merged.plot(
         column="value",
@@ -144,7 +144,7 @@ def graph_state_death_per_100_map():
         ])
     ]
 
-    fig, ax = plt.subplots(figsize=(15, 10))
+    _fig, ax = plt.subplots(figsize=(15, 10))
 
     merged.plot(
         column="value",
@@ -209,7 +209,7 @@ def graph_state_death_map():
         ])
     ]
 
-    fig, ax = plt.subplots(figsize=(15, 10))
+    _fig, ax = plt.subplots(figsize=(15, 10))
 
     merged.plot(
         column="value",
@@ -291,7 +291,7 @@ def graph_county_death_map():
         ])
     ]
 
-    fig, ax = plt.subplots(figsize=(15, 10))
+    _fig, ax = plt.subplots(figsize=(15, 10))
 
     merged.plot(
         column="value",
@@ -590,10 +590,14 @@ progress_bar(cur, total)
 for state in data:
     for county in state["counties"]:
         graph_death_by_intent(state["name"], county["name"])
+        cur += 1
+        progress_bar(cur, total)
         graph_death_by_race(state["name"], county["name"])
         cur += 1
         progress_bar(cur, total)
     graph_death_by_county(state["name"])
+    cur += 1
+    progress_bar(cur, total)
     graph_death_by_county_per_100(state["name"])
     cur += 1
     progress_bar(cur, total)

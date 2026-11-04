@@ -5456,7 +5456,7 @@
                 "metro_size": "Not Available",
                 "population": "Not Available",
                 "overall_deaths": 299,
-                "death_per_100": null
+                "death_per_100": 0
             },
             {
                 "name": "Hartford County, CT",
@@ -5490,7 +5490,7 @@
                 "metro_size": "Not Available",
                 "population": "Not Available",
                 "overall_deaths": 432,
-                "death_per_100": null
+                "death_per_100": 0
             },
             {
                 "name": "Litchfield County, CT",
@@ -5504,7 +5504,7 @@
                 "metro_size": "Not Available",
                 "population": "Not Available",
                 "overall_deaths": 86,
-                "death_per_100": null
+                "death_per_100": 0
             },
             {
                 "name": "Middlesex County, CT",
@@ -5518,7 +5518,7 @@
                 "metro_size": "Not Available",
                 "population": "Not Available",
                 "overall_deaths": 71,
-                "death_per_100": null
+                "death_per_100": 0
             },
             {
                 "name": "New Haven County, CT",
@@ -5552,7 +5552,7 @@
                 "metro_size": "Not Available",
                 "population": "Not Available",
                 "overall_deaths": 469,
-                "death_per_100": null
+                "death_per_100": 0
             },
             {
                 "name": "New London County, CT",
@@ -5571,7 +5571,7 @@
                 "metro_size": "Not Available",
                 "population": "Not Available",
                 "overall_deaths": 126,
-                "death_per_100": null
+                "death_per_100": 0
             },
             {
                 "name": "Tolland County, CT",
@@ -5585,7 +5585,7 @@
                 "metro_size": "Not Available",
                 "population": "Not Available",
                 "overall_deaths": 60,
-                "death_per_100": null
+                "death_per_100": 0
             },
             {
                 "name": "Windham County, CT",
@@ -5599,7 +5599,7 @@
                 "metro_size": "Not Available",
                 "population": "Not Available",
                 "overall_deaths": 54,
-                "death_per_100": null
+                "death_per_100": 0
             }
         ],
         "population": 25219005,

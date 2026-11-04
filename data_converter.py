@@ -61,7 +61,7 @@ class DataConverter:
             if population != "Not Available" and int(population) > 0:
                 death_per_100 = (int(item["Deaths"]) / int(population)) * 100000
             else:
-                death_per_100 = None
+                death_per_100 = 0
 
             counties.append(
                 County(
@@ -108,7 +108,7 @@ class DataConverter:
             if population != "Not Available" and int(population) > 0:
                 death_per_100 = (int(item["Deaths"]) / int(population)) * 100000
             else:
-                death_per_100 = None
+                death_per_100 = 0
 
             states.append(
                 State(
