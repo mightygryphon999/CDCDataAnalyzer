@@ -54,6 +54,15 @@ class DataConverter:
 
             filtered_result_1 = data_1[(data_1['State'] == data_state_name) & (data_1['County'] == item["County"])]
 
+            death_per_100 = 0
+
+            population = item["Population"]
+
+            if population != "Not Available" and int(population) > 0:
+                death_per_100 = (int(item["Deaths"]) / int(population)) * 100000
+            else:
+                death_per_100 = None
+
             counties.append(
                 County(
                     name=item["County"],
@@ -61,7 +70,7 @@ class DataConverter:
                     population=item["Population"],
                     overall_deaths=item["Deaths"],
                     metro_size=filtered_result_1.iloc[0]["2023 Urbanization"],
-                    death_per_100=(deaths/item["Population"])*100000
+                    death_per_100=death_per_100
                 )
             )
 
@@ -92,6 +101,15 @@ class DataConverter:
 
             counties = self.load_counties(name)
 
+            death_per_100 = 0
+            
+            population = item["Population"]
+
+            if population != "Not Available" and int(population) > 0:
+                death_per_100 = (int(item["Deaths"]) / int(population)) * 100000
+            else:
+                death_per_100 = None
+
             states.append(
                 State(
                         name=name, 
@@ -102,7 +120,7 @@ class DataConverter:
                         crude_rate=crude_rate, 
                         crude_rate_low=crude_rate_low, 
                         crude_rate_high=crude_rate_high,
-                        death_per_100=(deaths/population)*100000
+                        death_per_100=death_per_100
                     )
                 )
 

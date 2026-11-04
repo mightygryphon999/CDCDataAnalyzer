@@ -25,7 +25,7 @@ class County:
             population: int,
             overall_deaths: int,
             metro_size: str,
-            death_per_100: float
+            death_per_100
         ):
         self.name = name
         self.deaths = deaths
@@ -55,7 +55,7 @@ class State:
             crude_rate_high: float,
             crude_rate_low: float,
             overall_deaths: int,
-            death_per_100: float
+            death_per_100
         ):
         self.name = name
         self.counties = counties

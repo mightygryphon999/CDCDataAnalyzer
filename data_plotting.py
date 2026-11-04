@@ -551,9 +551,9 @@ def graph_deaths_by_state_per_100():
 
 total = 6
 for state in data:
-    total += 1
+    total += 2
     for county in state["counties"]:
-        total += 1
+        total += 2
 
 cur = 0
 
