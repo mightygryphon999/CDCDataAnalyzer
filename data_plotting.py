@@ -3,16 +3,43 @@ import os
 import re
 import sys
 
+from concurrent.futures import ProcessPoolExecutor, as_completed
+import multiprocessing as mp
+
 import geopandas as gpd
 import matplotlib.pyplot as plt
+
 import pandas as pd
 from matplotlib.colors import LogNorm
 from matplotlib.ticker import LogLocator, ScalarFormatter
+import matplotlib
+
+matplotlib.use("Agg")
 
 BOUNDARY_FOLDER = "boundaries"
 
 with open("data.json", "r") as file:
     data = json.load(file)
+
+def run_task(task):
+    function_name, args = task
+
+    functions = {
+        "graph_death_by_intent": graph_death_by_intent,
+        "graph_death_by_race": graph_death_by_race,
+        "graph_death_by_county": graph_death_by_county,
+        "graph_death_by_county_per_100": graph_death_by_county_per_100,
+        "graph_deaths_by_state": graph_deaths_by_state,
+        "graph_deaths_by_state_per_100": graph_deaths_by_state_per_100,
+        "graph_state_death_map": graph_state_death_map,
+        "graph_county_death_map": graph_county_death_map,
+        "graph_state_death_per_100_map": graph_state_death_per_100_map,
+        "graph_county_death_per_100_map": graph_county_death_per_100_map,
+    }
+
+    functions[function_name](*args)
+
+    return task
 
 def progress_bar(iteration, total, prefix='', suffix='', length=90, fill='█'):
     percent = (f"{100 * (iteration / float(total)):.1f}")
@@ -549,55 +576,126 @@ def graph_deaths_by_state_per_100():
 
     plt.close()
 
-total = 6
-for state in data:
-    total += 2
-    for county in state["counties"]:
-        total += 2
+# total = 6
+# for state in data:
+#     total += 2
+#     for county in state["counties"]:
+#         total += 2
 
-cur = 0
+# cur = 0
 
-graph_deaths_by_state()
-cur += 1
-progress_bar(cur, total)
-
-
-graph_deaths_by_state_per_100()
-cur += 1
-progress_bar(cur, total)
+# graph_deaths_by_state()
+# cur += 1
+# progress_bar(cur, total)
 
 
-graph_state_death_map()
-cur += 1
-progress_bar(cur, total)
+# graph_deaths_by_state_per_100()
+# cur += 1
+# progress_bar(cur, total)
 
 
-graph_county_death_map()
-cur += 1
-progress_bar(cur, total)
+# graph_state_death_map()
+# cur += 1
+# progress_bar(cur, total)
 
 
-graph_state_death_per_100_map()
-cur += 1
-progress_bar(cur, total)
+# graph_county_death_map()
+# cur += 1
+# progress_bar(cur, total)
 
 
-graph_county_death_per_100_map()
-cur += 1
-progress_bar(cur, total)
+# graph_state_death_per_100_map()
+# cur += 1
+# progress_bar(cur, total)
 
 
-for state in data:
-    for county in state["counties"]:
-        graph_death_by_intent(state["name"], county["name"])
-        cur += 1
-        progress_bar(cur, total)
-        graph_death_by_race(state["name"], county["name"])
-        cur += 1
-        progress_bar(cur, total)
-    graph_death_by_county(state["name"])
-    cur += 1
-    progress_bar(cur, total)
-    graph_death_by_county_per_100(state["name"])
-    cur += 1
-    progress_bar(cur, total)
+# graph_county_death_per_100_map()
+# cur += 1
+# progress_bar(cur, total)
+
+
+# for state in data:
+#     for county in state["counties"]:
+#         graph_death_by_intent(state["name"], county["name"])
+#         cur += 1
+#         progress_bar(cur, total)
+#         graph_death_by_race(state["name"], county["name"])
+#         cur += 1
+#         progress_bar(cur, total)
+#     graph_death_by_county(state["name"])
+#     cur += 1
+#     progress_bar(cur, total)
+#     graph_death_by_county_per_100(state["name"])
+#     cur += 1
+#     progress_bar(cur, total)
+
+def main():
+
+    tasks = []
+
+    # Overall charts
+    tasks.append(("graph_deaths_by_state", ()))
+    tasks.append(("graph_deaths_by_state_per_100", ()))
+
+    # Overall maps
+    tasks.append(("graph_state_death_map", ()))
+    tasks.append(("graph_county_death_map", ()))
+    tasks.append(("graph_state_death_per_100_map", ()))
+    tasks.append(("graph_county_death_per_100_map", ()))
+
+    # State and county charts
+    for state in data:
+
+        state_name = state["name"]
+
+        tasks.append(("graph_death_by_county", (state_name,)))
+        tasks.append(("graph_death_by_county_per_100", (state_name,)))
+
+        for county in state["counties"]:
+
+            county_name = county["name"]
+
+            tasks.append((
+                "graph_death_by_intent",
+                (state_name, county_name)
+            ))
+
+            tasks.append((
+                "graph_death_by_race",
+                (state_name, county_name)
+            ))
+
+    total = len(tasks)
+    completed = 0
+
+    # Adjust this to control how many processes render simultaneously.
+    workers = min(mp.cpu_count(), 12)
+
+    print(f"Generating {total} charts using {workers} processes.")
+
+    with ProcessPoolExecutor(max_workers=workers) as executor:
+
+        futures = [
+            executor.submit(run_task, task)
+            for task in tasks
+        ]
+
+        for future in as_completed(futures):
+
+            future.result()
+
+            completed += 1
+
+            progress_bar(
+                completed,
+                total,
+                prefix="Generating charts",
+                suffix=f"{completed}/{total}"
+            )
+
+    print("\nAll charts generated successfully.")
+
+
+if __name__ == "__main__":
+    mp.freeze_support()
+    main()
