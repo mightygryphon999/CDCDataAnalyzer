@@ -1,4 +1,3 @@
-
 class DeathCount:
     def __init__(
             self,
