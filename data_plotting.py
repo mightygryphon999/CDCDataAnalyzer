@@ -1,18 +1,16 @@
 import json
+import multiprocessing as mp
 import os
 import re
 import sys
-
 from concurrent.futures import ProcessPoolExecutor, as_completed
-import multiprocessing as mp
 
 import geopandas as gpd
+import matplotlib
 import matplotlib.pyplot as plt
-
 import pandas as pd
 from matplotlib.colors import LogNorm
 from matplotlib.ticker import LogLocator, ScalarFormatter
-import matplotlib
 
 matplotlib.use("Agg")
 
